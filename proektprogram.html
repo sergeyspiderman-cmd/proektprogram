@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Личный дневник</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --ink: #1a1612;
+    --paper: #f7f3ee;
+    --sepia: #8b6f47;
+    --sepia-light: #c4a882;
+    --sepia-faint: #f0e8db;
+    --red: #8b2020;
+    --green: #2a5c3f;
+    --muted: #7a6f64;
+    --border: #d4c9bc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    background-image: repeating-linear-gradient(transparent, transparent 27px, rgba(139,111,71,0.07) 28px);
+    background-attachment: fixed;
+  }
+
+  /* ── AUTH ── */
+  .auth-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  .auth-card {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 3rem 3.5rem;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 2px 40px rgba(139,111,71,0.12);
+    position: relative;
+  }
+  .auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--sepia), var(--sepia-light));
+  }
+
+  .auth-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+  .auth-sub {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2.2rem;
+  }
+
+  .field { margin-bottom: 1.1rem; }
+  label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  input[type="password"],
+  input[type="text"],
+  textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: var(--paper);
+    padding: 0.7rem 1rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.93rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.18s;
+  }
+  input:focus, textarea:focus { border-color: var(--sepia); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.72rem 1.4rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .btn-primary  { background: var(--ink); color: var(--paper); width: 100%; margin-top: 1.2rem; }
+  .btn-primary:hover { background: #2c2418; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--sepia);
+    border: 1px solid var(--border);
+    padding: 0.52rem 0.9rem;
+    font-size: 0.74rem;
+  }
+  .btn-secondary:hover { border-color: var(--sepia); background: var(--sepia-faint); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 0.52rem 0.9rem;
+    font-size: 0.74rem;
+  }
+  .btn-ghost:hover { border-color: var(--muted); }
+  .btn-danger {
+    background: transparent;
+    color: var(--red);
+    border: 1px solid rgba(139,32,32,0.25);
+    padding: 0.52rem 0.9rem;
+    font-size: 0.74rem;
+  }
+  .btn-danger:hover { background: rgba(139,32,32,0.06); }
+
+  .toggle-link {
+    text-align: center;
+    margin-top: 1.1rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .toggle-link span {
+    color: var(--sepia);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .error-msg {
+    background: rgba(139,32,32,0.07);
+    border-left: 3px solid var(--red);
+    color: var(--red);
+    font-size: 0.8rem;
+    padding: 0.55rem 0.85rem;
+    margin-top: 0.9rem;
+  }
+
+  /* file drop zone (used in register step 2) */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.18s, background 0.18s;
+    margin-bottom: 1rem;
+  }
+  .drop-zone:hover, .drop-zone.over { border-color: var(--sepia); background: var(--sepia-faint); }
+  .drop-zone .dz-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .drop-zone .dz-title { font-size: 0.88rem; color: var(--ink); margin-bottom: 0.25rem; }
+  .drop-zone .dz-hint  { font-size: 0.75rem; color: var(--muted); }
+  .drop-zone.loaded { border-color: var(--green); background: rgba(42,92,63,0.05); }
+  .drop-zone.loaded .dz-icon::after { content: ' ✓'; font-size: 1rem; color: var(--green); }
+
+  /* ── APP ── */
+  #app-screen { display: none; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(247,243,238,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; height: 56px; gap: 1rem;
+  }
+  .topbar-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-style: italic; color: var(--sepia); flex: 1;
+  }
+  .topbar-user {
+    font-size: 0.75rem; color: var(--muted);
+    border: 1px solid var(--border); padding: 0.3rem 0.7rem;
+  }
+  .topbar-actions { display: flex; gap: 0.5rem; align-items: center; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    height: calc(100vh - 56px);
+  }
+
+  /* sidebar */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    background: white;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-tabs {
+    display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .sidebar-tab {
+    flex: 1; padding: 0.7rem 0.5rem; font-size: 0.72rem; letter-spacing: 0.08em;
+    text-transform: uppercase; text-align: center; cursor: pointer;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none;
+    font-family: 'Inter', sans-serif; font-weight: 400;
+  }
+  .sidebar-tab.active { color: var(--sepia); border-bottom-color: var(--sepia); }
+  .sidebar-tab:hover:not(.active) { background: var(--sepia-faint); }
+
+  .sidebar-header {
+    padding: 0.85rem 1.1rem 0.65rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .sidebar-label { font-size: 0.67rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .entry-list { flex: 1; overflow-y: auto; }
+
+  /* files panel */
+  .files-panel { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+  .files-panel-header {
+    padding: 0.85rem 1.1rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .file-item {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.75rem 1.1rem; border-bottom: 1px solid rgba(212,201,188,0.35);
+    transition: background 0.12s;
+  }
+  .file-item:hover { background: var(--sepia-faint); }
+  .file-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name {
+    font-size: 0.82rem; color: var(--ink); white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.15rem;
+  }
+  .file-meta { font-size: 0.68rem; color: var(--muted); }
+  .file-entry-link { font-size: 0.68rem; color: var(--sepia); cursor: pointer; }
+  .file-entry-link:hover { text-decoration: underline; }
+  .file-del-btn {
+    background: none; border: none; cursor: pointer; color: var(--muted);
+    font-size: 1rem; padding: 0.2rem 0.3rem; transition: color 0.12s; flex-shrink: 0;
+  }
+  .file-del-btn:hover { color: var(--red); }
+  .no-files {
+    padding: 2rem 1.1rem; text-align: center; color: var(--muted); font-size: 0.84rem; line-height: 1.6;
+  }
+  .no-files em {
+    display: block; font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem; margin-bottom: 0.4rem; font-style: italic; color: var(--sepia-light);
+  }
+
+  /* files drag-drop zone in panel */
+  .files-drop-zone {
+    margin: 0.7rem 1rem; border: 2px dashed var(--border);
+    padding: 1.2rem; text-align: center; font-size: 0.78rem; color: var(--muted);
+    cursor: pointer; transition: all 0.18s; border-radius: 2px;
+  }
+  .files-drop-zone:hover, .files-drop-zone.drag-over {
+    border-color: var(--sepia); background: var(--sepia-faint); color: var(--sepia);
+  }
+  .files-drop-zone .dz-small-icon { font-size: 1.3rem; display: block; margin-bottom: 0.3rem; }
+
+  /* file item download btn */
+  .file-download-btn {
+    background: none; border: none; cursor: pointer; color: var(--muted);
+    font-size: 0.9rem; padding: 0.2rem 0.3rem; transition: color 0.12s; flex-shrink: 0;
+  }
+  .file-download-btn:hover { color: var(--sepia); }
+
+  /* entry selector modal */
+  .entry-select-list {
+    max-height: 220px; overflow-y: auto; border: 1px solid var(--border); margin-bottom: 0.8rem;
+  }
+  .entry-select-item {
+    padding: 0.6rem 0.9rem; cursor: pointer; font-size: 0.85rem;
+    border-bottom: 1px solid rgba(212,201,188,0.4); transition: background 0.12s;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .entry-select-item:hover { background: var(--sepia-faint); }
+  .entry-select-item.selected { background: var(--sepia-faint); border-left: 3px solid var(--sepia); }
+  .entry-select-item .es-date { font-size: 0.67rem; color: var(--muted); flex-shrink: 0; }
+  .entry-select-item .es-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* file delete confirm modal */
+  #file-delete-modal .modal-filename {
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    color: var(--ink); word-break: break-all;
+  }
+
+  /* attachments in editor */
+  .attachments-section {
+    border-top: 1px solid var(--border); padding-top: 1rem;
+  }
+  .attachments-label {
+    font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem;
+  }
+  .attachment-list { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.6rem; }
+  .attachment-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.45rem 0.7rem; border: 1px solid var(--border); background: white;
+  }
+  .attachment-item .att-icon { font-size: 1rem; flex-shrink: 0; }
+  .attachment-item .att-name {
+    flex: 1; font-size: 0.8rem; color: var(--ink); white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+  }
+  .attachment-item .att-name:hover { color: var(--sepia); text-decoration: underline; }
+  .attachment-item .att-size { font-size: 0.68rem; color: var(--muted); flex-shrink: 0; }
+  .attachment-item .att-del {
+    background: none; border: none; cursor: pointer; color: var(--muted);
+    font-size: 0.9rem; padding: 0.1rem 0.25rem; transition: color 0.12s;
+  }
+  .attachment-item .att-del:hover { color: var(--red); }
+
+  .entry-item {
+    padding: 0.9rem 1.1rem;
+    border-bottom: 1px solid rgba(212,201,188,0.4);
+    cursor: pointer; transition: background 0.12s; position: relative;
+  }
+  .entry-item:hover { background: var(--sepia-faint); }
+  .entry-item.active { background: var(--sepia-faint); border-left: 3px solid var(--sepia); }
+  .entry-date {
+    font-size: 0.67rem; letter-spacing: 0.08em; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 0.2rem;
+  }
+  .entry-preview {
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--ink);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .entry-mood { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.1rem; }
+
+  .empty-sidebar { padding: 2rem 1.1rem; text-align: center; color: var(--muted); font-size: 0.84rem; line-height: 1.6; }
+  .empty-sidebar em {
+    display: block; font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem; margin-bottom: 0.4rem; font-style: italic; color: var(--sepia-light);
+  }
+
+  /* editor */
+  .editor-pane {
+    overflow-y: auto; padding: 2.5rem 3rem;
+    display: flex; flex-direction: column; gap: 1.2rem; background: var(--paper);
+  }
+  .editor-date-display { font-size: 0.7rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+  .mood-picker { display: flex; gap: 0.3rem; margin-top: 0.5rem; }
+  .mood-btn {
+    background: none; border: 1px solid transparent; border-radius: 50%;
+    width: 32px; height: 32px; font-size: 1.1rem; cursor: pointer; transition: all 0.12s;
+  }
+  .mood-btn:hover, .mood-btn.selected { border-color: var(--sepia); background: var(--sepia-faint); }
+
+  .title-input {
+    font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300;
+    border: none; background: transparent; padding: 0; width: 100%;
+    color: var(--ink); line-height: 1.2;
+  }
+  .title-input::placeholder { color: var(--sepia-light); }
+  .title-input:focus { outline: none; }
+
+  .divider { border: none; border-top: 1px solid var(--border); }
+
+  .body-input {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; line-height: 2;
+    border: none; background: transparent; padding: 0;
+    width: 100%; min-height: 50vh; resize: none; color: var(--ink);
+  }
+  .body-input::placeholder { color: var(--sepia-light); }
+  .body-input:focus { outline: none; }
+
+  .editor-footer {
+    display: flex; gap: 0.7rem; align-items: center;
+    padding-top: 0.5rem; border-top: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .char-count { font-size: 0.7rem; color: var(--muted); margin-left: auto; }
+
+  .welcome-pane {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; gap: 1rem; color: var(--muted); text-align: center; padding: 3rem;
+  }
+  .welcome-pane h2 {
+    font-family: 'Cormorant Garamond', serif; font-size: 2rem;
+    font-weight: 300; font-style: italic; color: var(--sepia-light);
+  }
+
+  /* toast */
+  #toast {
+    position: fixed; bottom: 2rem; right: 2rem;
+    background: var(--ink); color: var(--paper);
+    padding: 0.65rem 1.2rem; font-size: 0.8rem; letter-spacing: 0.04em;
+    opacity: 0; transform: translateY(8px); transition: all 0.25s;
+    pointer-events: none; z-index: 999; max-width: 300px;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+  #toast.success { border-left: 3px solid var(--green); }
+  #toast.error   { border-left: 3px solid var(--red); }
+
+  /* modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(26,22,18,0.5); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white; border: 1px solid var(--border);
+    padding: 2rem 2.5rem; max-width: 380px; width: 90%;
+  }
+  .modal h3 {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;
+    font-weight: 300; margin-bottom: 0.5rem;
+  }
+  .modal p { font-size: 0.84rem; color: var(--muted); margin-bottom: 1.1rem; line-height: 1.6; }
+  .modal-actions { display: flex; gap: 0.7rem; justify-content: flex-end; margin-top: 1rem; }
+
+  .hidden-file-input { display: none; }
+
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .editor-pane { padding: 1.5rem; }
+    .auth-card { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SCREEN 1: LOGIN
+══════════════════════════════════ -->
+<div id="screen-login" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-brand">Дневник</div>
+    <div class="auth-sub">Войти</div>
+
+    <div class="field">
+      <label>Имя пользователя</label>
+      <input type="text" id="login-username" placeholder="Введите имя" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <div class="field">
+      <label>Пароль</label>
+      <input type="password" id="login-pass" placeholder="Введите пароль" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn btn-primary" onclick="login()">Войти</button>
+    <div id="login-error" class="error-msg" style="display:none;"></div>
+    <div class="toggle-link">Нет аккаунта? <span onclick="showScreen('screen-register')">Зарегистрироваться</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 2: REGISTER — шаг 1
+══════════════════════════════════ -->
+<div id="screen-register" class="auth-screen" style="display:none;">
+  <div class="auth-card">
+    <div class="auth-brand">Дневник</div>
+    <div class="auth-sub">Новый аккаунт</div>
+
+    <div class="field">
+      <label>Имя пользователя</label>
+      <input type="text" id="reg-username" placeholder="Как вас называть?">
+    </div>
+    <div class="field">
+      <label>Пароль</label>
+      <input type="password" id="reg-pass1" placeholder="Минимум 4 символа">
+    </div>
+    <div class="field">
+      <label>Повторите пароль</label>
+      <input type="password" id="reg-pass2" placeholder="Подтверждение">
+    </div>
+
+    <button class="btn btn-primary" onclick="registerStep1()">Создать дневник</button>
+    <div id="reg-error" class="error-msg" style="display:none;"></div>
+    <div class="toggle-link">Уже есть аккаунт? <span onclick="showScreen('screen-login')">Войти</span></div>
+  </div>
+</div>
+
+
+
+<!-- ══════════════════════════════════
+     APP
+══════════════════════════════════ -->
+<div id="app-screen">
+  <div class="topbar">
+    <div class="topbar-title">✦ Личный дневник</div>
+    <div class="topbar-actions">
+      <span class="topbar-user" id="topbar-user"></span>
+      <button class="btn btn-secondary" onclick="newEntry()">＋ Запись</button>
+      <button class="btn btn-ghost" onclick="confirmLogout()">Выйти</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <!-- tabs -->
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" id="tab-entries" onclick="switchTab('entries')">📓 Записи</button>
+        <button class="sidebar-tab" id="tab-files" onclick="switchTab('files')">📎 Файлы</button>
+      </div>
+
+      <!-- entries tab -->
+      <div id="panel-entries" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+        <div class="sidebar-header">
+          <span class="sidebar-label">Всего (<span id="entry-count">0</span>)</span>
+          <input type="text" id="search-input" placeholder="Поиск…"
+                 style="width:105px;padding:0.28rem 0.5rem;font-size:0.78rem;" oninput="renderSidebar()">
+        </div>
+        <div class="entry-list" id="entry-list"></div>
+      </div>
+
+      <!-- files tab -->
+      <div id="panel-files" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+        <div class="files-panel-header">
+          <span class="sidebar-label">Вложения (<span id="file-count">0</span>)</span>
+          <button class="btn btn-secondary" style="padding:0.28rem 0.6rem;font-size:0.7rem;" onclick="openAddFileDialog()">&#xFF0B; Добавить</button>
+          <input type="file" id="file-input-attach-sidebar" class="hidden-file-input" multiple onchange="attachFromSidebar(this)">
+        </div>
+        <div class="files-drop-zone" id="files-drop-zone"
+             onclick="document.getElementById('file-input-attach-sidebar').click()"
+             ondragover="fileDragOver(event)" ondragleave="fileDragLeave(event)" ondrop="fileDrop(event)">
+          <span class="dz-small-icon">&#x1F4CE;</span>
+          Перетащите файлы сюда или нажмите
+        </div>
+        <div class="files-panel" id="files-panel"></div>
+      </div>
+    </aside>
+
+    <main class="editor-pane" id="editor-pane">
+      <div class="welcome-pane">
+        <h2>С чего начнём?</h2>
+        <p style="font-size:0.84rem;">Нажмите «＋ Запись» или выберите запись слева</p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <h3>Удалить запись?</h3>
+    <p>Это действие необратимо.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeDeleteModal()">Отмена</button>
+      <button class="btn btn-danger"    onclick="deleteCurrentEntry()">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGOUT MODAL -->
+<div class="modal-overlay" id="logout-modal">
+  <div class="modal">
+    <h3>Выйти из дневника?</h3>
+    <p>Все данные сохранены и будут доступны при следующем входе.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeLogoutModal()">Отмена</button>
+      <button class="btn btn-danger" onclick="logout()">Выйти</button>
+    </div>
+  </div>
+</div>
+
+<!-- OPEN DIARY FILE MODAL -->
+<div class="modal-overlay" id="open-file-modal">
+  <div class="modal">
+    <h3>Открыть дневник</h3>
+    <p>Файл: <strong id="of-filename"></strong></p>
+    <div class="field" style="margin-bottom:0.8rem;">
+      <label>Имя пользователя</label>
+      <input type="text" id="of-username" placeholder="Ваше имя" onkeydown="if(event.key==='Enter')decryptAndOpen()">
+    </div>
+    <div class="field" style="margin-bottom:0.5rem;">
+      <label>Пароль</label>
+      <input type="password" id="of-pass" placeholder="Пароль от файла" onkeydown="if(event.key==='Enter')decryptAndOpen()">
+    </div>
+    <div id="of-error" class="error-msg" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeOpenFileModal()">Отмена</button>
+      <button class="btn btn-primary" style="width:auto;margin-top:0;" onclick="decryptAndOpen()">Открыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- FILE DELETE MODAL -->
+<div class="modal-overlay" id="file-delete-modal">
+  <div class="modal">
+    <h3>Удалить файл?</h3>
+    <p>Файл <span class="modal-filename" id="file-delete-name"></span> будет удалён безвозвратно.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeFileDeleteModal()">Отмена</button>
+      <button class="btn btn-danger" onclick="confirmFileDelete()">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ENTRY SELECTOR MODAL -->
+<div class="modal-overlay" id="entry-select-modal">
+  <div class="modal" style="max-width:440px;">
+    <h3>Выберите запись</h3>
+    <p>К какой записи прикрепить файлы?</p>
+    <div class="entry-select-list" id="entry-select-list"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeEntrySelectModal()">Отмена</button>
+      <button class="btn btn-primary" style="width:auto;margin-top:0;" onclick="confirmEntrySelect()">Прикрепить</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════
+//  CRYPTO
+// ════════════════════════════
+async function deriveKey(password, salt) {
+  const enc = new TextEncoder();
+  const km  = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 200000, hash: 'SHA-256' },
+    km,
+    { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+  );
+}
+async function encrypt(plaintext, password) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(12));
+  const key  = await deriveKey(password, salt);
+  const ct   = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plaintext));
+  const buf  = new Uint8Array(16 + 12 + ct.byteLength);
+  buf.set(salt, 0); buf.set(iv, 16); buf.set(new Uint8Array(ct), 28);
+  return btoa(String.fromCharCode(...buf));
+}
+async function decrypt(b64, password) {
+  const buf  = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const key  = await deriveKey(password, buf.slice(0, 16));
+  const dec  = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: buf.slice(16, 28) }, key, buf.slice(28));
+  return new TextDecoder().decode(dec);
+}
+
+// ════════════════════════════
+//  STATE
+// ════════════════════════════
+let masterPassword = '';
+let currentUser    = '';
+let entries        = [];
+let currentId      = null;
+
+const MOODS = ['😊','😐','😢','😡','🥰','🤔','😴'];
+
+// ════════════════════════════
+//  SCREEN ROUTING
+// ════════════════════════════
+function showScreen(id) {
+  ['screen-login','screen-register','app-screen']
+    .forEach(s => document.getElementById(s).style.display = 'none');
+  document.getElementById(id).style.display = id === 'app-screen' ? 'block' : 'flex';
+}
+
+// ════════════════════════════
+//  LOGIN
+// ════════════════════════════
+async function login() {
+  const user  = document.getElementById('login-username').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  if (!user) { errEl.textContent = 'Введите имя пользователя'; errEl.style.display = ''; return; }
+  if (!pass) { errEl.textContent = 'Введите пароль'; errEl.style.display = ''; return; }
+
+  masterPassword = pass;
+  currentUser    = user;
+  entries        = [];
+
+  // Try to restore from localStorage
+  const storageKey = 'diary_' + user;
+  const saved = localStorage.getItem(storageKey);
+  if (saved) {
+    try {
+      const decrypted = await decrypt(saved, pass);
+      entries = JSON.parse(decrypted);
+      openApp();
+      toast('Дневник загружен из сохранения', 'success');
+      return;
+    } catch {
+      errEl.textContent = 'Неверный пароль или данные повреждены';
+      errEl.style.display = '';
+      masterPassword = ''; currentUser = '';
+      return;
+    }
+  }
+  openApp();
+}
+
+// ════════════════════════════
+//  REGISTER
+// ════════════════════════════
+function registerStep1() {
+  const user = document.getElementById('reg-username').value.trim();
+  const p1   = document.getElementById('reg-pass1').value;
+  const p2   = document.getElementById('reg-pass2').value;
+  const errEl = document.getElementById('reg-error');
+  errEl.style.display = 'none';
+
+  if (!user)        { errEl.textContent = 'Введите имя пользователя'; errEl.style.display = ''; return; }
+  if (p1.length < 4){ errEl.textContent = 'Пароль слишком короткий (минимум 4 символа)'; errEl.style.display = ''; return; }
+  if (p1 !== p2)    { errEl.textContent = 'Пароли не совпадают'; errEl.style.display = ''; return; }
+
+  masterPassword = p1;
+  currentUser    = user;
+  entries        = [];
+  openApp();
+}
+
+// ════════════════════════════
+//  APP
+// ════════════════════════════
+function openApp() {
+  currentId = null;
+  document.getElementById('topbar-user').textContent = currentUser;
+  document.getElementById('editor-pane').innerHTML =
+    `<div class="welcome-pane"><h2>С чего начнём?</h2><p style="font-size:0.84rem;">Нажмите «＋ Запись» или выберите запись слева</p></div>`;
+  showScreen('app-screen');
+  switchTab('entries');
+  renderSidebar();
+}
+
+function confirmLogout() {
+  document.getElementById('logout-modal').classList.add('open');
+}
+function closeLogoutModal() {
+  document.getElementById('logout-modal').classList.remove('open');
+}
+function logout() {
+  closeLogoutModal();
+  // Full state reset
+  masterPassword = ''; currentUser = ''; entries = []; currentId = null;
+  // Clear editor pane
+  document.getElementById('editor-pane').innerHTML =
+    `<div class="welcome-pane"><h2>С чего начнём?</h2><p style="font-size:0.84rem;">Нажмите «＋ Запись» или выберите запись слева</p></div>`;
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  showScreen('screen-login');
+}
+
+// ════════════════════════════
+//  ENTRIES
+// ════════════════════════════
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function formatDate(iso) {
+  return new Date(iso).toLocaleDateString('ru-RU', { day:'2-digit', month:'long', year:'numeric', weekday:'short' });
+}
+
+function newEntry() {
+  saveCurrentEditorState();
+  const e = { id: uid(), title: '', body: '', date: new Date().toISOString(), mood: '', attachments: [] };
+  entries.unshift(e);
+  currentId = e.id;
+  renderSidebar();
+  renderEditor();
+  document.getElementById('entry-title')?.focus();
+}
+
+function selectEntry(id) {
+  saveCurrentEditorState();
+  currentId = id;
+  switchTab('entries');
+  renderSidebar();
+  renderEditor();
+}
+
+function saveCurrentEditorState() {
+  if (!currentId) return;
+  const e = entries.find(x => x.id === currentId);
+  if (!e) return;
+  const t = document.getElementById('entry-title');
+  const b = document.getElementById('entry-body');
+  if (t) e.title = t.value;
+  if (b) e.body  = b.value;
+}
+
+function renderSidebar() {
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase();
+  const filtered = entries.filter(e =>
+    !q || e.title.toLowerCase().includes(q) || e.body.toLowerCase().includes(q)
+  );
+  document.getElementById('entry-count').textContent = entries.length;
+  const list = document.getElementById('entry-list');
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-sidebar"><em>${q ? 'Ничего не найдено' : 'Пока тихо'}</em>${q ? 'Другой запрос' : 'Создайте первую запись'}</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(e => `
+    <div class="entry-item ${e.id===currentId?'active':''}" onclick="selectEntry('${e.id}')">
+      <div class="entry-date">${formatDate(e.date)}</div>
+      <div class="entry-preview">${e.title || '(без заголовка)'}</div>
+      ${e.mood ? `<div class="entry-mood">${e.mood}</div>` : ''}
+    </div>`).join('');
+  renderFilesPanel();
+}
+
+function renderEditor() {
+  const pane = document.getElementById('editor-pane');
+  const e = entries.find(x => x.id === currentId);
+  if (!e) {
+    pane.innerHTML = `<div class="welcome-pane"><h2>С чего начнём?</h2><p style="font-size:0.84rem;">Нажмите «＋ Запись» или выберите запись слева</p></div>`;
+    return;
+  }
+  if (!e.attachments) e.attachments = [];
+  const moodBtns = MOODS.map(m =>
+    `<button class="mood-btn ${e.mood===m?'selected':''}" onclick="setMood('${e.id}','${m}')">${m}</button>`
+  ).join('');
+
+  const attList = e.attachments.length ? e.attachments.map((a,i) => `
+    <div class="attachment-item">
+      <span class="att-icon">${fileIcon(a.type)}</span>
+      <span class="att-name" onclick="openAttachment('${e.id}',${i})" title="Открыть">${escHtml(a.name)}</span>
+      <span class="att-size">${fmtSize(a.size)}</span>
+      <button class="att-del" onclick="deleteAttachment('${e.id}',${i})" title="Удалить">&#x2715;</button>
+    </div>`).join('') : '';
+
+  pane.innerHTML = `
+    <div>
+      <div class="editor-date-display">${formatDate(e.date)}</div>
+      <div class="mood-picker">${moodBtns}</div>
+    </div>
+    <input type="text" class="title-input" id="entry-title" placeholder="Заголовок…" value="${escHtml(e.title)}" oninput="liveUpdate()">
+    <hr class="divider">
+    <textarea class="body-input" id="entry-body" placeholder="Начните писать…" oninput="liveUpdate()">${escHtml(e.body)}</textarea>
+    <div class="attachments-section">
+      <div class="attachments-label">📎 Вложения</div>
+      <div class="attachment-list" id="att-list-${e.id}">${attList}</div>
+      <button class="btn btn-secondary" style="font-size:0.72rem;padding:0.4rem 0.8rem;" onclick="document.getElementById('file-input-attach').click()">＋ Прикрепить файл</button>
+      <input type="file" id="file-input-attach" class="hidden-file-input" multiple onchange="attachToEntry('${e.id}',this)">
+    </div>
+    <div class="editor-footer">
+      <button class="btn btn-danger" onclick="openDeleteModal()">🗑 Удалить запись</button>
+      <span class="char-count" id="char-count">${e.body.length} симв.</span>
+    </div>`;
+}
+
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function liveUpdate() {
+  const e = entries.find(x => x.id === currentId);
+  if (!e) return;
+  e.title = document.getElementById('entry-title').value;
+  e.body  = document.getElementById('entry-body').value;
+  document.getElementById('char-count').textContent = e.body.length + ' симв.';
+  renderSidebar();
+  clearTimeout(liveUpdate._t);
+  liveUpdate._t = setTimeout(autoSave, 1500);
+}
+
+function setMood(id, mood) {
+  const e = entries.find(x => x.id === id);
+  if (!e) return;
+  e.mood = e.mood === mood ? '' : mood;
+  renderEditor(); renderSidebar();
+  autoSave();
+}
+
+// ════════════════════════════
+//  DELETE
+// ════════════════════════════
+function openDeleteModal()  { document.getElementById('delete-modal').classList.add('open'); }
+function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('open'); }
+function deleteCurrentEntry() {
+  entries = entries.filter(e => e.id !== currentId);
+  currentId = null;
+  closeDeleteModal();
+  renderSidebar();
+  document.getElementById('editor-pane').innerHTML =
+    `<div class="welcome-pane"><h2>Запись удалена</h2></div>`;
+  toast('Запись удалена', 'success');
+  autoSave();
+}
+
+
+
+async function autoSave() {
+  if (!masterPassword || !currentUser) return;
+  saveCurrentEditorState();
+  try {
+    const enc = await encrypt(JSON.stringify(entries), masterPassword);
+    localStorage.setItem('diary_' + currentUser, enc);
+  } catch {}
+}
+
+// Open .diary file from login screen
+function openDiaryFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    _pendingDiaryData = ev.target.result;
+    // Ask for credentials to decrypt
+    document.getElementById('open-file-modal').classList.add('open');
+    document.getElementById('of-filename').textContent = file.name;
+    document.getElementById('of-username').value = '';
+    document.getElementById('of-pass').value = '';
+    document.getElementById('of-error').style.display = 'none';
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+let _pendingDiaryData = null;
+
+async function decryptAndOpen() {
+  const user = document.getElementById('of-username').value.trim();
+  const pass = document.getElementById('of-pass').value;
+  const errEl = document.getElementById('of-error');
+  errEl.style.display = 'none';
+  if (!user) { errEl.textContent = 'Введите имя пользователя'; errEl.style.display = ''; return; }
+  if (!pass) { errEl.textContent = 'Введите пароль'; errEl.style.display = ''; return; }
+  try {
+    const decrypted = await decrypt(_pendingDiaryData, pass);
+    entries = JSON.parse(decrypted);
+    masterPassword = pass;
+    currentUser = user;
+    _pendingDiaryData = null;
+    document.getElementById('open-file-modal').classList.remove('open');
+    // Also save to localStorage for future logins
+    const enc = await encrypt(JSON.stringify(entries), pass);
+    localStorage.setItem('diary_' + user, enc);
+    openApp();
+    toast('Дневник открыт', 'success');
+  } catch {
+    errEl.textContent = 'Неверный пароль или файл повреждён';
+    errEl.style.display = '';
+  }
+}
+function closeOpenFileModal() {
+  document.getElementById('open-file-modal').classList.remove('open');
+  _pendingDiaryData = null;
+}
+
+// ════════════════════════════
+//  TABS
+// ════════════════════════════
+let currentTab = 'entries';
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('panel-entries').style.display = tab==='entries' ? 'flex' : 'none';
+  document.getElementById('panel-files').style.display   = tab==='files'   ? 'flex' : 'none';
+  document.getElementById('tab-entries').classList.toggle('active', tab==='entries');
+  document.getElementById('tab-files').classList.toggle('active',   tab==='files');
+  if (tab==='files') renderFilesPanel();
+}
+
+// ════════════════════════════
+//  FILES PANEL (sidebar)
+// ════════════════════════════
+function renderFilesPanel() {
+  const allFiles = [];
+  entries.forEach(e => {
+    (e.attachments||[]).forEach((a,i) => {
+      allFiles.push({ entryId: e.id, entryTitle: e.title||'(без заголовка)', idx: i, ...a });
+    });
+  });
+  document.getElementById('file-count').textContent = allFiles.length;
+  const panel = document.getElementById('files-panel');
+  if (!allFiles.length) {
+    panel.innerHTML = `<div class="no-files"><em>Файлов нет</em>Прикрепите файл к любой записи или перетащите сюда</div>`;
+    return;
+  }
+  panel.innerHTML = allFiles.map(f => `
+    <div class="file-item">
+      <div class="file-icon">${fileIcon(f.type)}</div>
+      <div class="file-info">
+        <div class="file-name" title="${escHtml(f.name)}">${escHtml(f.name)}</div>
+        <div class="file-meta">${fmtSize(f.size)} &nbsp;&middot;&nbsp; <span class="file-entry-link" onclick="selectEntry('${f.entryId}')">${escHtml(f.entryTitle)}</span></div>
+      </div>
+      <button class="file-download-btn" onclick="downloadAttachment('${f.entryId}',${f.idx})" title="Скачать">&#x2B07;</button>
+      <button class="file-del-btn" onclick="openFileDeleteModal('${f.entryId}',${f.idx})" title="Удалить">&#x1F5D1;</button>
+    </div>`).join('');
+}
+
+// ════════════════════════════
+//  ADD FILE FROM SIDEBAR
+// ════════════════════════════
+let _pendingSidebarFiles = null;
+let _selectedEntryForAttach = null;
+
+function openAddFileDialog() {
+  // If an entry is selected, just open file picker directly
+  if (currentId) {
+    document.getElementById('file-input-attach-sidebar').click();
+  } else if (!entries.length) {
+    toast('Сначала создайте запись', 'error');
+  } else {
+    // Show entry selector
+    _pendingSidebarFiles = null;
+    _selectedEntryForAttach = null;
+    renderEntrySelectModal();
+    document.getElementById('entry-select-modal').classList.add('open');
+  }
+}
+
+function attachFromSidebar(input) {
+  if (!input.files || !input.files.length) return;
+  if (currentId) {
+    attachToEntry(currentId, input);
+    return;
+  }
+  if (!entries.length) {
+    toast('Сначала создайте запись', 'error');
+    input.value = ''; return;
+  }
+  // Store files and open entry selector
+  _pendingSidebarFiles = Array.from(input.files);
+  input.value = '';
+  _selectedEntryForAttach = null;
+  renderEntrySelectModal();
+  document.getElementById('entry-select-modal').classList.add('open');
+}
+
+function renderEntrySelectModal() {
+  const list = document.getElementById('entry-select-list');
+  list.innerHTML = entries.map(e => `
+    <div class="entry-select-item ${_selectedEntryForAttach===e.id?'selected':''}" onclick="selectEntryForAttach('${e.id}',this)">
+      <span class="es-title">${escHtml(e.title||'(без заголовка)')}</span>
+      <span class="es-date">${new Date(e.date).toLocaleDateString('ru-RU',{day:'2-digit',month:'short'})}</span>
+    </div>`).join('');
+}
+
+function selectEntryForAttach(id, el) {
+  _selectedEntryForAttach = id;
+  document.querySelectorAll('.entry-select-item').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function confirmEntrySelect() {
+  if (!_selectedEntryForAttach) { toast('Выберите запись', 'error'); return; }
+  closeEntrySelectModal();
+  if (_pendingSidebarFiles && _pendingSidebarFiles.length) {
+    // Attach pre-loaded files
+    const e = entries.find(x => x.id === _selectedEntryForAttach);
+    if (!e) return;
+    if (!e.attachments) e.attachments = [];
+    let done = 0;
+    _pendingSidebarFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        e.attachments.push({ name: file.name, type: file.type, size: file.size, data: ev.target.result });
+        done++;
+        if (done === _pendingSidebarFiles.length) {
+          renderEditor(); renderFilesPanel();
+          toast(`Прикреплено: ${_pendingSidebarFiles.length} файл(ов)`, 'success');
+          _pendingSidebarFiles = null;
+          autoSave();
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  } else {
+    // Open file picker for selected entry
+    currentId = _selectedEntryForAttach;
+    document.getElementById('file-input-attach-sidebar').click();
+  }
+}
+
+function closeEntrySelectModal() {
+  document.getElementById('entry-select-modal').classList.remove('open');
+  _pendingSidebarFiles = null;
+  _selectedEntryForAttach = null;
+}
+
+// ════════════════════════════
+//  DRAG & DROP (files panel)
+// ════════════════════════════
+function fileDragOver(e) {
+  e.preventDefault();
+  document.getElementById('files-drop-zone').classList.add('drag-over');
+}
+function fileDragLeave(e) {
+  document.getElementById('files-drop-zone').classList.remove('drag-over');
+}
+function fileDrop(e) {
+  e.preventDefault();
+  document.getElementById('files-drop-zone').classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files);
+  if (!files.length) return;
+  if (currentId) {
+    const fakeInput = { files, value: '' };
+    attachToEntryDirect(currentId, files);
+  } else if (!entries.length) {
+    toast('Сначала создайте запись', 'error');
+  } else {
+    _pendingSidebarFiles = files;
+    _selectedEntryForAttach = null;
+    renderEntrySelectModal();
+    document.getElementById('entry-select-modal').classList.add('open');
+  }
+}
+
+function attachToEntryDirect(entryId, files) {
+  const e = entries.find(x => x.id === entryId);
+  if (!e) return;
+  if (!e.attachments) e.attachments = [];
+  let done = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      e.attachments.push({ name: file.name, type: file.type, size: file.size, data: ev.target.result });
+      done++;
+      if (done === files.length) {
+        renderEditor(); renderFilesPanel();
+        toast(`Прикреплено: ${files.length} файл(ов)`, 'success');
+        autoSave();
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ════════════════════════════
+//  ATTACHMENT HELPERS
+// ════════════════════════════
+function fileIcon(mime='') {
+  if (mime.startsWith('image/'))       return '🖼️';
+  if (mime.startsWith('video/'))       return '🎬';
+  if (mime.startsWith('audio/'))       return '🎵';
+  if (mime.includes('pdf'))            return '📕';
+  if (mime.includes('word')||mime.includes('document')) return '📝';
+  if (mime.includes('sheet')||mime.includes('excel'))   return '📊';
+  if (mime.includes('zip')||mime.includes('rar'))       return '🗜️';
+  return '📄';
+}
+function fmtSize(bytes) {
+  if (bytes < 1024)       return bytes + ' Б';
+  if (bytes < 1048576)    return (bytes/1024).toFixed(1) + ' КБ';
+  return (bytes/1048576).toFixed(1) + ' МБ';
+}
+
+function attachToEntry(entryId, input) {
+  const e = entries.find(x => x.id === entryId);
+  if (!e) return;
+  if (!e.attachments) e.attachments = [];
+  const files = Array.from(input.files);
+  let done = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      e.attachments.push({ name: file.name, type: file.type, size: file.size, data: ev.target.result });
+      done++;
+      if (done === files.length) {
+        renderEditor();
+        renderFilesPanel();
+        toast(`Прикреплено: ${files.length} файл(ов)`, 'success');
+        autoSave();
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+// ════════════════════════════
+//  FILE DELETE MODAL
+// ════════════════════════════
+let _deleteFileEntryId = null;
+let _deleteFileIdx = null;
+
+function openFileDeleteModal(entryId, idx) {
+  const e = entries.find(x => x.id === entryId);
+  const name = e?.attachments?.[idx]?.name || 'файл';
+  _deleteFileEntryId = entryId;
+  _deleteFileIdx = idx;
+  document.getElementById('file-delete-name').textContent = name;
+  document.getElementById('file-delete-modal').classList.add('open');
+}
+function closeFileDeleteModal() {
+  document.getElementById('file-delete-modal').classList.remove('open');
+  _deleteFileEntryId = null; _deleteFileIdx = null;
+}
+function confirmFileDelete() {
+  const entryId = _deleteFileEntryId;
+  const idx = _deleteFileIdx;
+  closeFileDeleteModal();
+  deleteAttachment(entryId, idx);
+}
+
+function deleteAttachment(entryId, idx) {
+  const e = entries.find(x => x.id === entryId);
+  if (!e || !e.attachments) return;
+  e.attachments.splice(idx, 1);
+  renderEditor();
+  renderFilesPanel();
+  toast('Файл удалён', 'success');
+  autoSave();
+}
+
+function openAttachment(entryId, idx) {
+  const e = entries.find(x => x.id === entryId);
+  const a = e?.attachments?.[idx];
+  if (!a) return;
+  // For images, video, audio, pdf — open in new tab
+  const viewable = a.type.startsWith('image/') || a.type.startsWith('video/') ||
+                   a.type.startsWith('audio/') || a.type.includes('pdf');
+  if (viewable) {
+    const w = window.open();
+    if (w) {
+      w.document.write(`<html><head><title>${a.name}</title></head><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;">` +
+        (a.type.startsWith('image/') ? `<img src="${a.data}" style="max-width:100%;max-height:100vh;">` :
+         a.type.startsWith('video/') ? `<video src="${a.data}" controls style="max-width:100%;max-height:100vh;"></video>` :
+         a.type.startsWith('audio/') ? `<audio src="${a.data}" controls></audio>` :
+         `<embed src="${a.data}" type="application/pdf" width="100%" height="100%" style="position:fixed;inset:0;">`) +
+        `</body></html>`);
+    }
+  } else {
+    // For other files — download
+    const link = document.createElement('a');
+    link.href = a.data;
+    link.download = a.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}
+
+function downloadAttachment(entryId, idx) {
+  const e = entries.find(x => x.id === entryId);
+  const a = e?.attachments?.[idx];
+  if (!a) return;
+  const link = document.createElement('a');
+  link.href = a.data;
+  link.download = a.name;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// ════════════════════════════
+//  TOAST
+// ════════════════════════════
+let _tt;
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = `show ${type}`;
+  clearTimeout(_tt); _tt = setTimeout(() => el.className='', 2800);
+}
+
+
+</script>
+</body>
+</html>
